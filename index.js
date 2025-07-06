@@ -15,12 +15,17 @@ import {
   removeUserFromLocalStorage,
   saveUserToLocalStorage,
 } from "./helpers.js";
+import { renderUserPostsPageComponent } from "./components/renderUserPostsPageComponent.js";
+
 
 export let user = getUserFromLocalStorage();
+// export let getposts = (newposts) => {
+//   posts = newposts
+// }
 export let page = null;
 export let posts = [];
 
-const getToken = () => {
+export const getToken = () => {
   const token = user ? `Bearer ${user.token}` : undefined;
   return token;
 };
@@ -69,12 +74,49 @@ export const goToPage = (newPage, data) => {
     if (newPage === USER_POSTS_PAGE) {
       // @@TODO: реализовать получение постов юзера из API
       console.log("Открываю страницу пользователя: ", data.userId);
-      page = USER_POSTS_PAGE;
+      page = LOADING_PAGE;
+
       posts = [];
+      // posts = [];
+      function getposts() {
+        return fetch(
+          `https://wedev-api.sky.pro/api/v1/prod/instapro/user-posts/${data.userId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          },
+        )
+          .then((response) => {
+            if (response.status === 401) {
+              throw new Error("Нет авторизации");
+            }
+            if (response.status === 500) {
+              throw new Error("ошибка сервера");
+            }
+
+            return response.json();
+          })
+          .then((data) => {
+            return data.posts;
+          })
+          .then((newPosts) => {
+            page = USER_POSTS_PAGE;
+            posts = newPosts;
+            renderApp();
+          })
+          .catch((error) => {
+            console.error(error);
+            goToPage(POSTS_PAGE);
+          });
+      }
+      getposts({ token: getToken() });
+
       return renderApp();
     }
-
     page = newPage;
+    // page = USER_POSTS_PAGE;
     renderApp();
 
     return;
@@ -111,6 +153,19 @@ const renderApp = () => {
       appEl,
       onAddPostClick({ description, imageUrl }) {
         // @TODO: реализовать добавление поста в API
+        fetch("https://wedev-api.sky.pro/api/v1/prod/instapro", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({
+            description,
+            imageUrl,
+          }),
+        }).then((response) => {
+          return response.json();
+        });
+
         console.log("Добавляю пост...", { description, imageUrl });
         goToPage(POSTS_PAGE);
       },
@@ -125,9 +180,12 @@ const renderApp = () => {
 
   if (page === USER_POSTS_PAGE) {
     // @TODO: реализовать страницу с фотографиями отдельного пользвателя
-    appEl.innerHTML = "Здесь будет страница фотографий пользователя";
-    return;
+
+    return renderUserPostsPageComponent({
+      appEl,
+    });
   }
 };
 
 goToPage(POSTS_PAGE);
+
