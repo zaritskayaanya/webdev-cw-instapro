@@ -1,7 +1,10 @@
+import { goToPage } from "./index.js";
+import { ADD_POSTS_PAGE } from "./routes.js";
 // Замени на свой, чтобы получить независимый от других набор данных.
+
 // "боевая" версия инстапро лежит в ключе prod
-const personalKey = "prod";
-const baseHost = "https://webdev-hw-api.vercel.app";
+const personalKey = "zaritskayaanya";
+const baseHost = "https://wedev-api.sky.pro";
 const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
 export function getPosts({ token }) {
@@ -64,6 +67,41 @@ export function uploadImage({ file }) {
     method: "POST",
     body: data,
   }).then((response) => {
+    if (response.status === 400) {
+      throw new Error("Неверный формат изображения!");
+    }
+    return response.json();
+  })
+  .catch((error) => {
+    alert(error.message)
+    goToPage(ADD_POSTS_PAGE)
+})
+}
+
+export function likePost({ token, baseHostId }) {
+  return fetch(baseHostId + "/like", {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {
+    if (response.status === 400) {
+      throw new Error("Неверный логин или пароль");
+    }
+    return response.json();
+  });
+}
+
+export function dislikePost({ token, baseHostId }) {
+  return fetch(baseHostId + "/dislike", {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {
+    if (response.status === 400) {
+      throw new Error("Неверный логин или пароль");
+    }
     return response.json();
   });
 }
