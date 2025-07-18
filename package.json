@@ -1,0 +1,17 @@
+{
+  "name": "anyuta-project",
+  "version": "1.0.0",
+  "description": "Проект с Webpack и date-fns",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve --open"
+  },
+  "dependencies": {
+    "date-fns": "^2.29.3"
+  },
+  "devDependencies": {
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.2"
+  }
+}

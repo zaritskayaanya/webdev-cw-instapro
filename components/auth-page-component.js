@@ -1,6 +1,9 @@
-import { loginUser, registerUser } from "../api.js";
 import { renderHeaderComponent } from "./header-component.js";
+import { loginUser } from "../api.js";
+// import { setUser } from "../index.js";
 import { renderUploadImageComponent } from "./upload-image-component.js";
+import { registerUser } from "../api.js";
+import { sanitizeHtml } from "../helpers.js";
 
 /**
  * Компонент страницы авторизации.
@@ -102,8 +105,8 @@ export function renderAuthPageComponent({ appEl, setUser }) {
 
       if (isLoginMode) {
         // Обработка входа
-        const login = document.getElementById("login-input").value;
-        const password = document.getElementById("password-input").value;
+        const login = sanitizeHtml(document.getElementById("login-input").value);
+        const password = sanitizeHtml(document.getElementById("password-input").value);
 
         if (!login) {
           alert("Введите логин");
@@ -117,6 +120,8 @@ export function renderAuthPageComponent({ appEl, setUser }) {
 
         loginUser({ login, password })
           .then((user) => {
+            console.log(user);
+
             setUser(user.user);
           })
           .catch((error) => {
@@ -125,8 +130,8 @@ export function renderAuthPageComponent({ appEl, setUser }) {
           });
       } else {
         // Обработка регистрации
-        const login = document.getElementById("login-input").value;
-        const name = document.getElementById("name-input").value;
+        const login = sanitizeHtml(document.getElementById("login-input").value);
+        const name = sanitizeHtml(document.getElementById("name-input").value);
         const password = document.getElementById("password-input").value;
 
         if (!name) {
